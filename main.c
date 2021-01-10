@@ -159,6 +159,7 @@ void print_snake_coordinates(struct elem* list)
 
 int generate_random_number(int lower, int upper)
 {
+    srand ( time(NULL) );
     int num = (rand() % (upper - lower + 1)) + lower;
     return num;
 }

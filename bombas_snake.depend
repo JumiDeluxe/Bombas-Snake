@@ -1,8 +1,0 @@
-# depslib dependency file v1.0
-1609691424 source:/home/jwm/Documents/C/Cwiczenia/Cwiczenia1/bombas_snake/main.c
-	<stdio.h>
-	<stdlib.h>
-	<time.h>
-	<ncurses.h>
-	<unistd.h>
-
