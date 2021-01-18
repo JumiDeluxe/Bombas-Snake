@@ -3,24 +3,28 @@
 #include <time.h>
 #include <ncurses.h>
 #include <unistd.h>
+#include <termios.h>
+#include <fcntl.h>
 
 #define COLOR_END   "\033[0m"
-#define BLACK   "\033[30m"      /* Black */
-#define RED     "\033[31m"      /* Red */
-#define GREEN   "\033[32m"      /* Green */
-#define YELLOW  "\033[33m"      /* Yellow */
-#define BLUE    "\033[34m"      /* Blue */
-#define MAGENTA "\033[35m"      /* Magenta */
-#define CYAN    "\033[36m"      /* Cyan */
-#define WHITE   "\033[37m"      /* White */
-#define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
-#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
-#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
-#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
-#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
-#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
-#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
-#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
+#define RED     "\033[31m"      // Red
+#define YELLOW  "\033[33m"      // Yellow
+#define WHITE   "\033[37m"      // White
+#define BOLDGREEN   "\033[1m\033[32m"      // Bold Green
+/*
+#define BLACK   "\033[30m"      // Black
+#define GREEN   "\033[32m"      // Green
+#define BLUE    "\033[34m"      // Blue
+#define MAGENTA "\033[35m"      // Magenta
+#define CYAN    "\033[36m"      // Cyan
+#define BOLDBLACK   "\033[1m\033[30m"      // Bold Black
+#define BOLDRED     "\033[1m\033[31m"      // Bold Red
+#define BOLDYELLOW  "\033[1m\033[33m"      // Bold Yellow
+#define BOLDBLUE    "\033[1m\033[34m"      // Bold Blue
+#define BOLDMAGENTA "\033[1m\033[35m"      // Bold Magenta
+#define BOLDCYAN    "\033[1m\033[36m"      // Bold Cyan
+#define BOLDWHITE   "\033[1m\033[37m"      // Bold White
+*/
 
 #define DEFAULT_BOARD_WIDTH 20
 #define DEFAULT_BOARD_HEIGHT 16
@@ -87,6 +91,7 @@ for(int j = 0; j < height; j++) {
         putchar('\n');
     }
     putchar('\n');
+    printf("\e[1;1H\e[2J"); //clear screen
 }
 
 struct elem
@@ -200,6 +205,10 @@ void free_all_elems(struct elem* list) {
     }
 }
 
+char get_input() {
+    
+}
+
 void play()
 {
     int active_x = 3;
@@ -212,15 +221,22 @@ void play()
 
     generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
 
-    char direction = 'd';
+    //char direction = 'd';
 
     display_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
 
+    struct termios t;
+    tcgetattr(0, &t);
+    t.c_lflag &= ~ICANON;
+    tcsetattr(0, TCSANOW, &t);
+
+    fcntl(0, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
+    char direction = 'd';
     for(;;)
     {
-        scanf("\n%c", &direction);
-
+        system("stty -echo");
         //printf("%d", (int)capture);
+        read (0, &direction, 1);
 
         printf("Score: %d\n", points);
         switch(direction)
@@ -258,14 +274,18 @@ void play()
 
         snake = add_to_beginning(snake, active_x, active_y);
         display_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
+
+        usleep(80000);
     }
 }
+
+
 
 int main()
 {
     prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
 
     play();
-    printf("eee");
+    system("stty echo"); //turn on echo after game to prevent "broken" terminal
     return 0;
 }
