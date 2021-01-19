@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <fcntl.h>
+#include <stdbool.h>
 
 #define COLOR_END   "\033[0m"
 #define RED     "\033[31m"      // Red
@@ -36,12 +37,20 @@ typedef struct board_tile
     unsigned int occupied : 1;
     unsigned int point : 1;
     unsigned int snake : 1;
-    unsigned int bomb : 1;
 } board_tile;
+
+struct elem
+{
+    int x;
+    int y;
+    struct elem *next;
+};
 
 
 board_tile board[DEFAULT_BOARD_HEIGHT][DEFAULT_BOARD_WIDTH];
+struct elem* bombs = NULL;
 int points = 0;
+int free_tiles = (DEFAULT_BOARD_HEIGHT-1)*(DEFAULT_BOARD_WIDTH-1) - 4; //used to calculate how many bombs can be placed (at start 3 snake tiles + 1 point tile)
 
 void prepare_board(int width, int height) {
 
@@ -50,11 +59,9 @@ void prepare_board(int width, int height) {
         board[0][i].occupied = 1;
         board[0][i].point = 0;
         board[0][i].snake = 0;
-        board[0][i].bomb = 0;
         board[width-1][i].occupied = 1;
         board[width-1][i].point = 0;
         board[width-1][i].snake = 0;
-        board[width-1][i].bomb = 0;
     }
 
     for(int i = 0; i < width; i++)
@@ -62,11 +69,9 @@ void prepare_board(int width, int height) {
         board[i][0].occupied = 1;
         board[i][0].point = 0;
         board[i][0].snake = 0;
-        board[i][0].bomb = 0;
         board[i][height-1].occupied = 1;
         board[i][height-1].point = 0;
         board[i][height-1].snake = 0;
-        board[i][height-1].bomb = 0;
     }
 
 
@@ -75,7 +80,6 @@ void prepare_board(int width, int height) {
             board[i][j].occupied = 0;
             board[i][j].point = 0;
             board[i][j].snake = 0;
-            board[i][j].bomb = 0;
         }
     }
 }
@@ -94,15 +98,9 @@ for(int j = 0; j < height; j++) {
     printf("\e[1;1H\e[2J"); //clear screen
 }
 
-struct elem
-{
-    int x;
-    int y;
-    struct elem *next;
-};
-
 struct elem* create_elem(int x, int y)
 {
+    free_tiles--;
     board[x][y].snake = 1;
     board[x][y].occupied = 1;
 
@@ -116,6 +114,7 @@ struct elem* create_elem(int x, int y)
 
 struct elem* add_to_beginning(struct elem* list, int x, int y)
 {
+    free_tiles--;
     board[x][y].snake = 1;
     board[x][y].occupied = 1;
 
@@ -146,6 +145,13 @@ void remove_end(struct elem* list)
 
     free(temp->next);
     temp->next = NULL;
+    free_tiles++;
+}
+
+void free_all_elems(struct elem* list) {
+    while(list->next != NULL) {
+        remove_end(list);
+    }
 }
 
 /*
@@ -164,12 +170,11 @@ void print_snake_coordinates(struct elem* list)
 
 int generate_random_number(int lower, int upper)
 {
-    srand ( time(NULL) );
     int num = (rand() % (upper - lower + 1)) + lower;
     return num;
 }
 
-void generate_point(int width, int height)
+void generate_point(int width, int height, bool isPoint) //0 - bomb, 1 - point
 {
     width--;
     height--;
@@ -179,16 +184,27 @@ void generate_point(int width, int height)
     {
         x = generate_random_number(1, width);
         y = generate_random_number(1, height);
+        //if(!isPoint) {
+            //printf("%d %d\n", x, y);
+           // if(board[x][y].occupied) printf("occupied");
+          //  if(board[x][y].point) printf("point");
+        //}
     }
-    while (board[x][y].occupied);
+    while (board[x][y].occupied || board[x][y].point);
 
-    board[x][y].point = 1;
+    if(isPoint) board[x][y].point = 1;
+    else {
+        board[x][y].occupied = 1;
+    }
 }
 
 void collect_point(int x, int y)
 {
     board[x][y].point = 0;
-    generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
+    generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, true);
+    //after collecting a point generate new bomb
+    generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, false);
+    free_tiles--;
 }
 
 int check_next_tile(int x, int y)
@@ -199,18 +215,9 @@ int check_next_tile(int x, int y)
     else return 2;
 }
 
-void free_all_elems(struct elem* list) {
-    while(list->next != NULL) {
-        remove_end(list);
-    }
-}
-
-char get_input() {
-    
-}
-
 void play()
 {
+    srand ( time(NULL) );
     int active_x = 3;
     int active_y = DEFAULT_BOARD_HEIGHT/2;
     struct elem* snake = create_elem(1, active_y);
@@ -219,9 +226,7 @@ void play()
 
     printf("\nKliknij 'x' by zakończyć działanie programu\n");
 
-    generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
-
-    //char direction = 'd';
+    generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, true);
 
     display_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
 
@@ -229,13 +234,12 @@ void play()
     tcgetattr(0, &t);
     t.c_lflag &= ~ICANON;
     tcsetattr(0, TCSANOW, &t);
-
     fcntl(0, F_SETFL, fcntl(0, F_GETFL) | O_NONBLOCK);
     char direction = 'd';
+
     for(;;)
     {
         system("stty -echo");
-        //printf("%d", (int)capture);
         read (0, &direction, 1);
 
         printf("Score: %d\n", points);
@@ -275,7 +279,7 @@ void play()
         snake = add_to_beginning(snake, active_x, active_y);
         display_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
 
-        usleep(80000);
+        usleep(200000);
     }
 }
 
