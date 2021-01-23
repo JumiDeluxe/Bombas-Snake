@@ -88,6 +88,15 @@ void clear_screen() {
     printf("\e[1;1H\e[2J");
 }
 
+void echo_allowed(bool allowed) {
+    //determines whether user input should be displayed
+    if(allowed) {
+        system("stty -echo");
+    } else {
+        system("stty echo");
+    }
+}
+
 void display_board(int width, int height) {
 for(int j = 0; j < height; j++) {
     for(int i = 0; i < width; i++) {
@@ -222,6 +231,7 @@ int check_next_tile(int x, int y)
 void play()
 {
     srand ( time(NULL) );
+    prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
     int active_x = 3;
     int active_y = DEFAULT_BOARD_HEIGHT/2;
     struct elem* snake = create_elem(1, active_y);
@@ -243,7 +253,6 @@ void play()
 
     for(;;)
     {
-        system("stty -echo");
         read (0, &direction, 1);
 
         printf("Score: %d\n", points);
@@ -291,9 +300,9 @@ void play()
 
 int main()
 {
-    prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
+    echo_allowed(true);
 
     play();
-    system("stty echo"); //turn on echo after game to prevent "broken" terminal
+    echo_allowed(false);
     return 0;
 }
