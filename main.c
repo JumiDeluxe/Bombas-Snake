@@ -84,6 +84,10 @@ void prepare_board(int width, int height) {
     }
 }
 
+void clear_screen() {
+    printf("\e[1;1H\e[2J");
+}
+
 void display_board(int width, int height) {
 for(int j = 0; j < height; j++) {
     for(int i = 0; i < width; i++) {
@@ -95,7 +99,7 @@ for(int j = 0; j < height; j++) {
         putchar('\n');
     }
     putchar('\n');
-    printf("\e[1;1H\e[2J"); //clear screen
+    clear_screen();
 }
 
 struct elem* create_elem(int x, int y)
