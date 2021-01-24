@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include "scores.h"
 
 #define COLOR_END   "\033[0m"
 #define RED     "\033[31m"      // Red
@@ -280,6 +281,7 @@ void play()
         case 0:
             free_all_elems(snake);
             printf("%sGAME OVER\n", RED);
+            add_new_score(points);
             return;
         case 1:
             collect_point(active_x, active_y);
@@ -300,9 +302,10 @@ void play()
 
 int main()
 {
+    print_scores();
     echo_allowed(true);
 
-    play();
+    //play();
     echo_allowed(false);
     return 0;
 }

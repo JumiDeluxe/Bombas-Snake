@@ -1,13 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-
-typedef struct score_entry {
-    char player_name[32];
-    int value;
-    struct score_entry* next;
-}score_entry;
+#include "scores.h"
 
 score_entry* create_score_entry(score_entry* scores, char* name, int score) {
     score_entry* new_entry;
