@@ -9,6 +9,7 @@ score_entry* create_score_entry(score_entry* scores, char* name, int score) {
     strncpy(new_entry->player_name, name, 32);
     new_entry->value = score;
     new_entry->next = scores;
+    return new_entry;
 }
 
 score_entry* read_scores() {
@@ -19,7 +20,7 @@ score_entry* read_scores() {
     FILE* file = fopen("scores", "r");
     rewind(file);
     while(fscanf(file, "%hhd %s\n", &score, name) != EOF) {
-        printf("%s %d\n", name, score);
+        //printf("%s %d\n", name, score);
         if(name != "") scores = create_score_entry(scores, name, score);
     }
     fclose(file);
@@ -32,6 +33,7 @@ void print_scores() {
         printf("%d %s\n", scores->value, scores->player_name);
         print_scores(scores->next);
     }
+    return;
 }
 
 void save_scores(score_entry* scores) {
@@ -41,6 +43,8 @@ void save_scores(score_entry* scores) {
         //printf("%d %s\n", scores->value, scores->player_name);
         scores = scores->next;
     }
+    fclose(file);
+    return;
 }
 
 void position_score_in_ranking(score_entry** head_ref, score_entry* new_node) 
@@ -65,14 +69,13 @@ the point of insertion */
     } 
 } 
 
-void add_new_score(int score) {
-    char name[32];
+void add_new_score(int score, char name[32]) {
     score_entry* scores = NULL;
     score_entry* new_score;
     new_score = (score_entry*) malloc(sizeof(score_entry));
 
-    printf("Wprowadź swoje imie!\n");
-    fgets(name, 32, stdin);
+    //printf("Wprowadź swoje imie!\n");
+    //fgets(name, 32, stdin);
     strtok(name, "\n");
     strncpy(new_score->player_name, name, sizeof new_score->player_name);
     new_score->value = score;
@@ -82,6 +85,7 @@ void add_new_score(int score) {
     position_score_in_ranking(&scores, new_score);
     //printf("%s %d %s\n", scores->player_name, scores->value, scores->next->player_name);
     save_scores(scores);
+    return;
 }
 /* do testow
 int main() {

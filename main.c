@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <ncurses.h>
 #include <unistd.h>
@@ -51,6 +52,7 @@ struct elem
 board_tile board[DEFAULT_BOARD_HEIGHT][DEFAULT_BOARD_WIDTH];
 struct elem* bombs = NULL;
 int points = 0;
+char name[32];
 int free_tiles = (DEFAULT_BOARD_HEIGHT-1)*(DEFAULT_BOARD_WIDTH-1) - 4; //used to calculate how many bombs can be placed (at start 3 snake tiles + 1 point tile)
 
 void prepare_board(int width, int height) {
@@ -168,20 +170,6 @@ void free_all_elems(struct elem* list) {
     }
 }
 
-/*
-void print_snake_coordinates(struct elem* list)
-{
-    if(list->next == NULL)
-    {
-        printf("\n x %d y %d", list->x, list->y);
-        if(board[list->x][list->y].occupied) printf("\nzacheckowane\n");
-        else printf("niecheck");
-        return;
-    }
-    printf("\n x %d y %d", list->x, list->y);
-    print_snake_coordinates(list->next);
-}*/
-
 int generate_random_number(int lower, int upper)
 {
     int num = (rand() % (upper - lower + 1)) + lower;
@@ -230,7 +218,12 @@ int check_next_tile(int x, int y)
 }
 
 void play()
-{
+{   
+    printf("Wprowadź swoje imie!\n");
+    
+    fgets(name, 32, stdin);
+    strtok(name, "\n");
+    
     srand ( time(NULL) );
     prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
     int active_x = 3;
@@ -240,7 +233,6 @@ void play()
     snake = add_to_beginning(snake, 3, active_y);
 
     printf("\nKliknij 'x' by zakończyć działanie programu\n");
-
     generate_point(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, true);
 
     display_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
@@ -281,7 +273,7 @@ void play()
         case 0:
             free_all_elems(snake);
             printf("%sGAME OVER\n", RED);
-            add_new_score(points);
+            add_new_score(points, name);
             return;
         case 1:
             collect_point(active_x, active_y);
@@ -298,14 +290,38 @@ void play()
     }
 }
 
+void clean_stdin()
+{
+        int stdin_copy = dup(STDIN_FILENO);
+        /* remove garbage from stdin */
+        tcdrain(stdin_copy);
+        tcflush(stdin_copy, TCIFLUSH);
+        close(stdin_copy);
+}
 
+int menu_choice() {
+    int opcja;
+    system("figlet SNAKE");
+    printf("Wybierz opcję:\n 1 - graj\n 2 - wyświetl ranking");
+    scanf("%d", &opcja);
+    if(opcja < 1 || opcja > 2) return 1;
+    return opcja;
+}
 
 int main()
 {
-    print_scores();
-    echo_allowed(true);
-
-    //play();
-    echo_allowed(false);
+    //print_scores();
+    switch (menu_choice())
+    {
+        case 1:
+            echo_allowed(true);
+            play();
+            echo_allowed(false);
+            break;
+        case 2:
+            read_scores();
+            break;
+    }
+    
     return 0;
 }
