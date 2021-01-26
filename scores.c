@@ -20,8 +20,8 @@ score_entry* read_scores() {
     FILE* file = fopen("scores", "r");
     rewind(file);
     while(fscanf(file, "%hhd %s\n", &score, name) != EOF) {
-        //printf("%s %d\n", name, score);
-        if(name != "") scores = create_score_entry(scores, name, score);
+        printf("%s %d\n", name, score);
+        if(strlen(name) > 0) scores = create_score_entry(scores, name, score);
     }
     fclose(file);
     return scores;
@@ -47,27 +47,27 @@ void save_scores(score_entry* scores) {
     return;
 }
 
-void position_score_in_ranking(score_entry** head_ref, score_entry* new_node) 
-{ 
+void position_score_in_ranking(score_entry** head_ref, score_entry* new_node)
+{
     score_entry* current;
-    if (*head_ref == NULL 
+    if (*head_ref == NULL
         || (*head_ref)->value
-               >= new_node->value) { 
-        new_node->next = *head_ref; 
-        *head_ref = new_node; 
-    } 
-    else { 
-        /* Locate the node before  
+               >= new_node->value) {
+        new_node->next = *head_ref;
+        *head_ref = new_node;
+    }
+    else {
+        /* Locate the node before
 the point of insertion */
-        current = *head_ref; 
-        while (current->next != NULL 
-               && current->next->value >= new_node->value) { 
-            current = current->next; 
-        } 
-        new_node->next = current->next; 
-        current->next = new_node; 
-    } 
-} 
+        current = *head_ref;
+        while (current->next != NULL
+               && current->next->value <= new_node->value) {
+            current = current->next;
+        }
+        new_node->next = current->next;
+        current->next = new_node;
+    }
+}
 
 void add_new_score(int score, char name[32]) {
     score_entry* scores = NULL;

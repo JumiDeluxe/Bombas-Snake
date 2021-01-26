@@ -52,7 +52,7 @@ struct elem
 board_tile board[DEFAULT_BOARD_HEIGHT][DEFAULT_BOARD_WIDTH];
 struct elem* bombs = NULL;
 int points = 0;
-char name[32];
+char name[32] = {0};
 int free_tiles = (DEFAULT_BOARD_HEIGHT-1)*(DEFAULT_BOARD_WIDTH-1) - 4; //used to calculate how many bombs can be placed (at start 3 snake tiles + 1 point tile)
 
 void prepare_board(int width, int height) {
@@ -94,9 +94,9 @@ void clear_screen() {
 void echo_allowed(bool allowed) {
     //determines whether user input should be displayed
     if(allowed) {
-        system("stty -echo");
-    } else {
         system("stty echo");
+    } else {
+        system("stty -echo");
     }
 }
 
@@ -218,12 +218,7 @@ int check_next_tile(int x, int y)
 }
 
 void play()
-{   
-    printf("Wprowadź swoje imie!\n");
-    
-    fgets(name, 32, stdin);
-    strtok(name, "\n");
-    
+{
     srand ( time(NULL) );
     prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
     int active_x = 3;
@@ -314,14 +309,25 @@ int main()
     switch (menu_choice())
     {
         case 1:
-            echo_allowed(true);
-            play();
+
+            printf("Wprowadź swoje imie i zatwierdź klawiszem '!'\n");
+            fflush(stdin);
+            sleep(1);
+            int i = 0;
+            while(i < 31 && (name[i] = getchar()) != '!') {
+                i++;
+                printf("%c", name[i]);
+            }
+            name[i] = '\n';
+
             echo_allowed(false);
+            play();
+            echo_allowed(true);
             break;
         case 2:
             read_scores();
             break;
     }
-    
+
     return 0;
 }
