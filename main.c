@@ -56,34 +56,42 @@ int points = 0;
 char name[32] = {0};
 int free_tiles = (DEFAULT_BOARD_HEIGHT-1)*(DEFAULT_BOARD_WIDTH-1) - 4; //used to calculate how many bombs can be placed (at start 3 snake tiles + 1 point tile)
 
+board_tile occupied_tile() {
+    board_tile tile;
+    tile.occupied = 1;
+    tile.point = 0;
+    tile.snake = 0;
+
+    return tile;
+}
+
+board_tile empty_tile() {
+    board_tile tile;
+    tile.occupied = 0;
+    tile.point = 0;
+    tile.snake = 0;
+
+    return tile;
+}
+
 void prepare_board(int width, int height) {
 
     for(int i = 0; i < height; i++)
     {
-        board[0][i].occupied = 1;
-        board[0][i].point = 0;
-        board[0][i].snake = 0;
-        board[width-1][i].occupied = 1;
-        board[width-1][i].point = 0;
-        board[width-1][i].snake = 0;
+        board[0][i] = occupied_tile();
+        board[width-1][i] = occupied_tile();
     }
 
     for(int i = 0; i < width; i++)
     {
-        board[i][0].occupied = 1;
-        board[i][0].point = 0;
-        board[i][0].snake = 0;
-        board[i][height-1].occupied = 1;
-        board[i][height-1].point = 0;
-        board[i][height-1].snake = 0;
+        board[i][0] = occupied_tile();
+        board[i][height-1] = occupied_tile();
     }
 
 
     for(int i = 1; i < width-2; i++) {
         for(int j = 1; j < height-2; j++) {
-            board[i][j].occupied = 0;
-            board[i][j].point = 0;
-            board[i][j].snake = 0;
+            board[i][j] = empty_tile();
         }
     }
 }
