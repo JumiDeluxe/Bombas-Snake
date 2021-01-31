@@ -294,12 +294,24 @@ void clean_stdin()
         close(stdin_copy);
 }
 
+void remove_spaces(char* s) {
+    const char* d = s;
+    do {
+        while (*d == ' ') {
+            ++d;
+        }
+    } while (*s++ = *d++);
+}
+
 int menu_choice() {
     int opcja;
     system("figlet SNAKE");
-    printf("Wybierz opcję:\n 1 - graj\n 2 - wyświetl ranking");
+    printf("Wybierz opcję:\n 1 - graj\n 2 - wyświetl ranking\n");
+    echo_allowed(false);
     scanf("%d", &opcja);
     if(opcja < 1 || opcja > 2) return 1;
+    echo_allowed(true);
+    clear_screen();
     return opcja;
 }
 
@@ -310,15 +322,16 @@ int main()
     {
         case 1:
 
-            printf("Wprowadź swoje imie i zatwierdź klawiszem '!'\n");
-            fflush(stdin);
-            sleep(1);
+            printf("Wprowadź swoje imie (minimum 3 znaki)\n");
             int i = 0;
-            while(i < 31 && (name[i] = getchar()) != '!') {
+            name[0] = getchar();
+            while(i < 31 && (name[i] = getchar()) != '\n') {
                 i++;
                 printf("%c", name[i]);
             }
             name[i] = '\n';
+            remove_spaces(name);
+            if(strlen(name) < 3) strcpy(name, "anon");
 
             echo_allowed(false);
             play();
