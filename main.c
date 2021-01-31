@@ -114,18 +114,22 @@ for(int j = 0; j < height; j++) {
     clear_screen();
 }
 
+struct elem* alloc_elem(int x, int y, struct elem* next) {
+    struct elem* new_elem;
+    new_elem = (struct elem*) malloc(sizeof(struct elem));
+    new_elem->x = x;
+    new_elem->y = y;
+    new_elem->next = next;
+    return new_elem;
+}
+
 struct elem* create_elem(int x, int y)
 {
     free_tiles--;
     board[x][y].snake = 1;
     board[x][y].occupied = 1;
 
-    struct elem* temp;
-    temp=(struct elem*) malloc(sizeof(struct elem));
-    temp->x = x;
-    temp->y = y;
-    temp->next = NULL;
-    return temp;
+    return alloc_elem(x, y, NULL);
 }
 
 struct elem* add_to_beginning(struct elem* list, int x, int y)
@@ -186,11 +190,6 @@ void generate_point(int width, int height, bool isPoint) //0 - bomb, 1 - point
     {
         x = generate_random_number(1, width);
         y = generate_random_number(1, height);
-        //if(!isPoint) {
-            //printf("%d %d\n", x, y);
-           // if(board[x][y].occupied) printf("occupied");
-          //  if(board[x][y].point) printf("point");
-        //}
     }
     while (board[x][y].occupied || board[x][y].point);
 
@@ -267,6 +266,7 @@ void play()
         {
         case 0:
             free_all_elems(snake);
+            clear_screen();
             printf("%sGAME OVER\n", RED);
             add_new_score(points, name);
             return;
@@ -321,13 +321,11 @@ int main()
     switch (menu_choice())
     {
         case 1:
-
             printf("Wprowadź swoje imie (minimum 3 znaki)\n");
             int i = 0;
             name[0] = getchar();
             while(i < 31 && (name[i] = getchar()) != '\n') {
                 i++;
-                printf("%c", name[i]);
             }
             name[i] = '\n';
             remove_spaces(name);
