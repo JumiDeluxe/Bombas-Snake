@@ -176,8 +176,12 @@ void remove_end(struct elem* list)
 }
 
 void free_all_elems(struct elem* list) {
-    while(list->next != NULL) {
-        remove_end(list);
+    struct elem* prev;
+    while (list != NULL)
+    {
+       prev = list;
+       list = list->next;
+       free(prev);
     }
 }
 
