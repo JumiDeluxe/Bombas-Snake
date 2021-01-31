@@ -40,7 +40,6 @@ void save_scores(score_entry* scores) {
     FILE* file = fopen("scores", "w");
     while(scores != NULL) {
         fprintf(file, "%d %s\n", scores->value, scores->player_name);
-        //printf("%d %s\n", scores->value, scores->player_name);
         scores = scores->next;
     }
     fclose(file);
@@ -57,8 +56,6 @@ void position_score_in_ranking(score_entry** head_ref, score_entry* new_node)
         *head_ref = new_node;
     }
     else {
-        /* Locate the node before
-the point of insertion */
         current = *head_ref;
         while (current->next != NULL
                && current->next->value <= new_node->value) {
@@ -74,8 +71,6 @@ void add_new_score(int score, char name[32]) {
     score_entry* new_score;
     new_score = (score_entry*) malloc(sizeof(score_entry));
 
-    //printf("Wprowadź swoje imie!\n");
-    //fgets(name, 32, stdin);
     strtok(name, "\n");
     strncpy(new_score->player_name, name, sizeof new_score->player_name);
     new_score->value = score;
@@ -83,19 +78,6 @@ void add_new_score(int score, char name[32]) {
 
     scores = read_scores();
     position_score_in_ranking(&scores, new_score);
-    //printf("%s %d %s\n", scores->player_name, scores->value, scores->next->player_name);
     save_scores(scores);
     return;
 }
-/* do testow
-int main() {
-    score_entry* scores = NULL;
-
-    add_new_score(13);
-    //scores = read_scores();
-    print_scores();
-    //print_scores(scores);
-
-    return 0;
-}
-*/

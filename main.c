@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include "scores.h"
+#include "utilities.h"
 
 #define COLOR_END   "\033[0m"
 #define RED     "\033[31m"      // Red
@@ -87,18 +88,7 @@ void prepare_board(int width, int height) {
     }
 }
 
-void clear_screen() {
-    printf("\e[1;1H\e[2J");
-}
 
-void echo_allowed(bool allowed) {
-    //determines whether user input should be displayed
-    if(allowed) {
-        system("stty echo");
-    } else {
-        system("stty -echo");
-    }
-}
 
 void display_board(int width, int height) {
 for(int j = 0; j < height; j++) {
@@ -172,12 +162,6 @@ void free_all_elems(struct elem* list) {
     while(list->next != NULL) {
         remove_end(list);
     }
-}
-
-int generate_random_number(int lower, int upper)
-{
-    int num = (rand() % (upper - lower + 1)) + lower;
-    return num;
 }
 
 void generate_point(int width, int height, bool isPoint) //0 - bomb, 1 - point
@@ -283,24 +267,6 @@ void play()
 
         usleep(200000);
     }
-}
-
-void clean_stdin()
-{
-        int stdin_copy = dup(STDIN_FILENO);
-        /* remove garbage from stdin */
-        tcdrain(stdin_copy);
-        tcflush(stdin_copy, TCIFLUSH);
-        close(stdin_copy);
-}
-
-void remove_spaces(char* s) {
-    const char* d = s;
-    do {
-        while (*d == ' ') {
-            ++d;
-        }
-    } while (*s++ = *d++);
 }
 
 int menu_choice() {

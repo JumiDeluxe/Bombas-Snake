@@ -1,0 +1,16 @@
+Kryterium oceniania projektu Bombas Snake
+
+wybór tematu i propozycja klucza oceniania projektu do 5 I  (/10pkt)
+prezentacja postępów w projekcie do 12 I (/15pkt)
+prezentacja znacznych postępów do 26 I (/15pkt)
+modularyzacja kodu za pomocą funkcji (/10pkt)
+ogólna zrozumiałość i poprawność kodu (/10pkt)
+definicja i wykorzystanie odpowiednich typów danych (/10pkt)
+wykorzystanie wprost dynamicznej alokacji pamięci (/10pkt)
+wykorzystanie kodowania UTF-8 (/10pkt)
+wykorzystanie operacji na plikach (/10pkt)
+wykorzystanie interfejsu okienkowego GTK+ (/10pkt)
+przemieszczanie się węża (/10pkt)
+wydłużenie po zjedzeniu (/10pkt)
+działanie bomb (/10pkt)
+lista rankingowa (/10pkt)

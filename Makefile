@@ -1,2 +1,2 @@
 YOU:
-	gcc main.c scores.c -lncurses -o snake
+	gcc main.c scores.c utilities.c -lncurses -o snake
