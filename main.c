@@ -137,12 +137,12 @@ struct elem* alloc_elem(int x, int y, struct elem* next) {
     return new_elem;
 }
 
-struct elem* create_elem(int x, int y)
+struct elem* create_elem(int x, int y, struct elem* next)
 {
     free_tiles--;
     board[x][y] = snake_tile();
 
-    return alloc_elem(x, y, NULL);
+    return alloc_elem(x, y, next);
 }
 
 struct elem* add_to_beginning(struct elem* list, int x, int y)
@@ -150,10 +150,7 @@ struct elem* add_to_beginning(struct elem* list, int x, int y)
     free_tiles--;
     board[x][y] = snake_tile();
 
-    struct elem* new_elem;
-    new_elem = create_elem(x, y);
-    new_elem->next = list;
-    return new_elem;
+    return create_elem(x, y, list);
 }
 
 void remove_end(struct elem* list)
@@ -226,7 +223,7 @@ void play()
     prepare_board(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT);
     int active_x = 3;
     int active_y = DEFAULT_BOARD_HEIGHT/2;
-    struct elem* snake = create_elem(1, active_y);
+    struct elem* snake = create_elem(1, active_y, NULL);
     snake = add_to_beginning(snake, 2, active_y);
     snake = add_to_beginning(snake, 3, active_y);
 
