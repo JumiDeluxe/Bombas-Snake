@@ -56,10 +56,28 @@ int points = 0;
 char name[32] = {0};
 int free_tiles = (DEFAULT_BOARD_HEIGHT-1)*(DEFAULT_BOARD_WIDTH-1) - 4; //used to calculate how many bombs can be placed (at start 3 snake tiles + 1 point tile)
 
+board_tile snake_tile() {
+    board_tile tile;
+    tile.occupied = 1;
+    tile.point = 0;
+    tile.snake = 1;
+
+    return tile;
+}
+
 board_tile occupied_tile() {
     board_tile tile;
     tile.occupied = 1;
     tile.point = 0;
+    tile.snake = 0;
+
+    return tile;
+}
+
+board_tile point_tile() {
+    board_tile tile;
+    tile.occupied = 0;
+    tile.point = 1;
     tile.snake = 0;
 
     return tile;
@@ -96,8 +114,6 @@ void prepare_board(int width, int height) {
     }
 }
 
-
-
 void display_board(int width, int height) {
 for(int j = 0; j < height; j++) {
     for(int i = 0; i < width; i++) {
@@ -124,8 +140,7 @@ struct elem* alloc_elem(int x, int y, struct elem* next) {
 struct elem* create_elem(int x, int y)
 {
     free_tiles--;
-    board[x][y].snake = 1;
-    board[x][y].occupied = 1;
+    board[x][y] = snake_tile();
 
     return alloc_elem(x, y, NULL);
 }
@@ -133,8 +148,7 @@ struct elem* create_elem(int x, int y)
 struct elem* add_to_beginning(struct elem* list, int x, int y)
 {
     free_tiles--;
-    board[x][y].snake = 1;
-    board[x][y].occupied = 1;
+    board[x][y] = snake_tile();
 
     struct elem* new_elem;
     new_elem = create_elem(x, y);
@@ -148,8 +162,7 @@ void remove_end(struct elem* list)
 
     if(temp->next == NULL)
     {
-        board[temp->x][temp->y].snake = 0;
-        board[temp->x][temp->y].occupied = 0;
+        board[temp->x][temp->y] = empty_tile();
         free(temp);
         return;
     }
@@ -158,8 +171,7 @@ void remove_end(struct elem* list)
     {
         temp = temp->next;
     }
-    board[temp->next->x][temp->next->y].snake = 0;
-    board[temp->next->x][temp->next->y].occupied = 0;
+    board[temp->next->x][temp->next->y] = empty_tile();
 
     free(temp->next);
     temp->next = NULL;
@@ -185,9 +197,9 @@ void generate_point(int width, int height, bool isPoint) //0 - bomb, 1 - point
     }
     while (board[x][y].occupied || board[x][y].point);
 
-    if(isPoint) board[x][y].point = 1;
+    if(isPoint) board[x][y] = point_tile();
     else {
-        board[x][y].occupied = 1;
+        board[x][y] = occupied_tile();
     }
 }
 
